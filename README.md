@@ -102,6 +102,54 @@ std::cout
 
 并将其复制粘贴到 OJ 上提交即可。
 
+### 本地测试
+
+仓库已经准备好了批量测试。完成代码后，按下面的步骤操作即可。
+
+第一步，生成构建文件（只需要执行一次）。其中 `Release` 表示开启编译优化，测试会跑得更快：
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+```
+
+第二步，编译所有测试程序：
+
+```bash
+cmake --build build
+```
+
+第三步，运行全部测试：
+
+```bash
+ctest --test-dir build --output-on-failure
+```
+
+测试全部通过时，最后会显示 `100% tests passed`。如果有测试失败，`--output-on-failure` 会把具体的错误信息打印出来。
+
+目前共有 23 个测试：`data/Integer1` 中 5 个，`data/Integer2` 中 18 个。测试名由“文件夹编号_文件名”组成，例如 `data/Integer1/2.cpp` 对应的测试名是 `1_2.cpp`。
+
+只测试 Integer1：
+
+```bash
+ctest --test-dir build -R 1_ --output-on-failure
+```
+
+只测试 Integer2：
+
+```bash
+ctest --test-dir build -R 2_ --output-on-failure
+```
+
+只测试某一个用例，例如 `data/Integer1/2.cpp`：
+
+```bash
+ctest --test-dir build -R 1_2 --output-on-failure
+```
+
+这里的 `-R` 表示“只运行名字中包含指定文字的测试”。修改代码后，只需要重新执行第二步和第三步；如果新增了测试文件，则需要从第一步开始重新执行。
+
+编译产生的 `build/` 目录已经被 `.gitignore` 忽略，不会影响提交。
+
 ### 评分标准
 
 总分共占比 6\%
