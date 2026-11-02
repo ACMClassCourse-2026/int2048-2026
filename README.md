@@ -22,11 +22,13 @@
 
 其中，本次大作业所有的源代码都在 `src` 文件夹下。
 
-`include/int2048.h` 文件给出了本次作业中 `int2048` 大整数类所需要实现的所有函数接口。
+允许使用的标准库头文件为 `<complex>`、`<cstdio>`、`<cstring>`、`<iostream>`、`<string>`、`<vector>`。
 
-你需要在 `include/int2048.h` 文件中为 `int2048` 大整数类设计成员变量。
+`src/include/int2048.h` 文件给出了本次作业中 `int2048` 大整数类所需要实现的所有函数接口。
 
-考虑到在 C++ 的程序设计中，将类的成员函数接口与实现分离，是一个良好的设计习惯，所以，我们**建议**你在 `int2048.cpp` 文件中实现在 `include/int2048.h` 中声明的所有成员函数。
+你需要在 `src/include/int2048.h` 文件中为 `int2048` 大整数类设计成员变量。
+
+考虑到在 C++ 的程序设计中，将类的成员函数接口与实现分离，是一个良好的设计习惯，所以，我们**建议**你在 `src/int2048.cpp` 文件中实现在 `src/include/int2048.h` 中声明的所有成员函数。
 
 当然，你也可以在**兼容当前所有接口**的基础之上，自己添加新的接口或修改原有接口（例如实现 `swap` 函数、右值构造函数）。
 
@@ -68,7 +70,7 @@ std::cout
 
 由于功能的限制，OJ 系统每次只能接受一个头文件。因此，在提交程序前你需要做如下的操作：
 
-假设你的 `include/int2048.h` 有如下结构
+假设你的 `src/include/int2048.h` 有如下结构
 ```c++
 #pragma once
 #ifndef SJTU_BIGINTEGER
@@ -79,7 +81,7 @@ std::cout
 #endif
 ```
 
-以及你的 `include/int2048.cpp` 有如下结构
+以及你的 `src/int2048.cpp` 有如下结构
 ```c++
 #include "int2048.h"
 
@@ -121,32 +123,65 @@ cmake --build build
 第三步，运行全部测试：
 
 ```bash
-ctest --test-dir build --output-on-failure
+ctest --test-dir build
 ```
 
-测试全部通过时，最后会显示 `100% tests passed`。如果有测试失败，`--output-on-failure` 会把具体的错误信息打印出来。
+终端只会显示每个测试是 `Passed` 还是 `Failed`，不会打印测试数据。全部通过时，最后会显示 `100% tests passed`。
 
-目前共有 23 个测试：`data/Integer1` 中 5 个，`data/Integer2` 中 18 个。测试名由“文件夹编号_文件名”组成，例如 `data/Integer1/2.cpp` 对应的测试名是 `1_2.cpp`。
+如果有测试失败，CTest 会在最后列出失败的用例，并告诉你日志位置。例如：
 
-只测试 Integer1：
-
-```bash
-ctest --test-dir build -R 1_ --output-on-failure
+```text
+The following tests FAILED:
+    2 - Integer1_2 (Failed)
+Output from these tests are in: .../build/Testing/Temporary/LastTest.log
 ```
 
-只测试 Integer2：
+完整的测试日志在 `build/Testing/Temporary/LastTest.log`，失败用例列表在 `build/Testing/Temporary/LastTestsFailed.log`。日志可能很长，建议用 `less` 查看，不要直接用 `cat`：
 
 ```bash
-ctest --test-dir build -R 2_ --output-on-failure
+less build/Testing/Temporary/LastTest.log
+```
+
+进入 `less` 后，输入 `/Integer1_2` 可以搜索对应的测试，按 `n` 跳到下一个匹配位置。日志里的 `diff` 结果中，`<` 开头的是期望输出，`>` 开头的是实际输出。
+
+如果需要查看失败用例的详细输出，可以只重新运行失败的测试，并把输出保存到文件：
+
+```bash
+ctest --test-dir build --rerun-failed --output-on-failure > /tmp/ctest.log 2>&1
+less /tmp/ctest.log
+```
+
+目前共有 23 个公开测试：`data/Integer1` 中 5 个，`data/Integer2` 中 18 个。测试名由“文件夹名_文件名”组成，例如 `data/Integer1/2.cpp` 对应的测试名是 `Integer1_2`。
+
+只测试 Integer1 或 Integer2：
+
+```bash
+ctest --test-dir build -R Integer1
+ctest --test-dir build -R Integer2
 ```
 
 只测试某一个用例，例如 `data/Integer1/2.cpp`：
 
 ```bash
-ctest --test-dir build -R 1_2 --output-on-failure
+ctest --test-dir build -R Integer1_2
 ```
 
 这里的 `-R` 表示“只运行名字中包含指定文字的测试”。修改代码后，只需要重新执行第二步和第三步；如果新增了测试文件，则需要从第一步开始重新执行。
+
+如果某个用例失败且日志里的 `diff` 输出很长，可以单独运行它，并用 `cmp` 只看第一个不同的位置，避免把整份数据打印到终端：
+
+```bash
+./build/Integer1_2 < data/Integer1/2.in > /tmp/actual.txt
+cmp data/Integer1/2.out /tmp/actual.txt
+```
+
+`cmp` 会直接指出第一个不同处的字节和行号。
+
+需要注意：
+
+- 公开测试只有 23 个，全部通过不代表 OJ 一定能拿满分，隐藏测试点会覆盖更多边界情况；
+- 请不要修改 `data/` 下的测试文件；
+- 每个测试的 10 秒超时只是为了防止程序死循环，不代表 OJ 的实际时限。
 
 编译产生的 `build/` 目录已经被 `.gitignore` 忽略，不会影响提交。
 
