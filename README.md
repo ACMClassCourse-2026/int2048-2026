@@ -246,6 +246,10 @@ PS：BONUS 部分对代码性能也有要求，需要通过对应的测试数据
 
 [OI Wiki-高精度计算](https://oi-wiki.org/math/bignum/)
 
+[OI Wiki-快速傅里叶变换](https://oi-wiki.org/math/poly/fft/)
+
+[OI Wiki-快速数论变换](https://oi-wiki.org/math/poly/ntt/)
+
 [高精度基础算法](https://baobaobear.github.io/post/20210228-bigint1/)
 
 [分治除法以及相关算法](https://baobaobear.github.io/post/20210320-bigint3/)
